@@ -24,10 +24,10 @@ Trigonometric::~Trigonometric()
 	fpassemble.clear();
 }
 
-void Trigonometric::insertVertexAndPosition(const position_t insert)
+void Trigonometric::insertVertexAndPosition(vector<position_t> insert)
 {
 	fpassemble.clear();
-	fpassemble.push_back(insert);
+	fpassemble = insert;
 	updateSubdiv();
 	return ;
 }

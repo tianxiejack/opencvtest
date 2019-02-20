@@ -30,16 +30,20 @@ public:
 	Trigonometric(int width , int height);
 	virtual ~Trigonometric();
 
-	void insertVertexAndPosition(const position_t insert);
+
+	void insertVertexAndPosition(vector<position_t> insert);
+	int Point2getPos(const Point2i inPoint );
+	void getPos( Point2i inPoint , vector<Point2i>& triVertex ,  vector<Point2i>& triPos , Point2i result );
+
+
+
 	void updateSubdiv();
 
-	int Point2getPos(const Point2i inPoint );
 	void getTriangleVertex( Point2f fp, vector<Point2i> &result );
 	void vertex2pos(vector<Point2i> &vertex , vector<Point2i> & getPos );
 
 	void InterpolationPos( Point2i inPoint , vector<Point2i>& triVertex ,  vector<Point2i>& triPos , Point2i result );
 	void preprocessPos( vector<Point2i>& inpos , vector<Point2i>& outpos );
-	void getPos( Point2i inPoint , vector<Point2i>& triVertex ,  vector<Point2i>& triPos , Point2i result );
 
 private:
 	Subdiv2D subdiv;

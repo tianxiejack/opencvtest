@@ -177,6 +177,7 @@ void pushFpIntoVector(vector<Point2f> &fp)
 		fp.push_back(array[i]);
 }
 
+
  void trigonometric_interpolation(const vector<Point2i> &verfp , Point2i locate,Point2i &result)
  {
 	 unsigned int d1, d2, d3 ,d;
@@ -214,12 +215,54 @@ void pushFpIntoVector(vector<Point2f> &fp)
  }
 
 
+ static void getTriangleVertex( Subdiv2D& subdiv, Point2f fp, vector<Point2i> &result )
+ {
+     int e0=0, vertex=0;
+     Point2i tmp;
+     subdiv.locate(fp, e0, vertex);
+     if( e0 > 0 )
+     {
+         int e = e0;
+         do
+         {
+             Point2f org, dst;
+             if( subdiv.edgeOrg(e, &org) > 0 && subdiv.edgeDst(e, &dst) > 0 )
+             {
+            	 result.push_back(org);
+             }
+             e = subdiv.getEdge(e, Subdiv2D::NEXT_AROUND_LEFT);
+         }
+         while( e != e0 );
+     }
+ }
 
 
+ void vertex2pos(vector<Point2i> &vertex,vector <position_t> & position ,vector<Point2i> & getPos )
+ {
+	 getPos.clear();
+	 for(int i = 0 ; i< vertex.size(); i++)
+	 {
+		for(std::vector<position_t>::iterator plist = position.begin(); plist != position.end(); ++plist)
+		{
+			if( plist->ver == vertex[i] )
+			{
+				getPos.push_back( plist->pos );
+				break;
+			}
+		}
+	 }
 
 
+ }
+
+ void insertPoint2checkPos(const Point2i inPoint)
+ {
+	 vector<Point2i> getTriVertex;
+	 vector<Point2i> getTriPos;
 
 
+	 return ;
+ }
 
 
 int test_triangle()

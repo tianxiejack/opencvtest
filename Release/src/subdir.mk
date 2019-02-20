@@ -7,18 +7,21 @@ CPP_SRCS += \
 ../src/drawSolidPoly.cpp \
 ../src/fileStore.cpp \
 ../src/test_triangle.cpp \
+../src/trigonometric.cpp \
 ../src/videoio.cpp 
 
 OBJS += \
 ./src/drawSolidPoly.o \
 ./src/fileStore.o \
 ./src/test_triangle.o \
+./src/trigonometric.o \
 ./src/videoio.o 
 
 CPP_DEPS += \
 ./src/drawSolidPoly.d \
 ./src/fileStore.d \
 ./src/test_triangle.d \
+./src/trigonometric.d \
 ./src/videoio.d 
 
 

@@ -8,8 +8,8 @@
 #ifndef TEST_TRIANGLE_HPP_
 #define TEST_TRIANGLE_HPP_
 
-int test_triangle();
 
+int test_triangle();
 
 
 #endif /* TEST_TRIANGLE_HPP_ */

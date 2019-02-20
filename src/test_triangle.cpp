@@ -9,6 +9,9 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <iostream>
 #include "test_triangle.hpp"
+#include "stdio.h"
+#include "unistd.h"
+#include "math.h"
 
 using namespace cv;
 using namespace std;
@@ -17,6 +20,10 @@ using namespace std;
 vector<Point2f> fpvec;
 Point2f array[100];
 
+typedef struct{
+	Point2i ver;
+	Point2i pos;
+}position_t;
 
 static void help()
 {
@@ -69,7 +76,7 @@ static void locate_point( Mat& img, Subdiv2D& subdiv, Point2f fp, Scalar active_
     int e0=0, vertex=0;
 
     subdiv.locate(fp, e0, vertex);
-
+    int num = 0;
     if( e0 > 0 )
     {
         int e = e0;
@@ -77,7 +84,18 @@ static void locate_point( Mat& img, Subdiv2D& subdiv, Point2f fp, Scalar active_
         {
             Point2f org, dst;
             if( subdiv.edgeOrg(e, &org) > 0 && subdiv.edgeDst(e, &dst) > 0 )
+            {
+            	printf("index = %d \n",num++);
+            	draw_subdiv_point( img, org, active_color );
+            	draw_subdiv_point( img, dst, active_color );
+            	waitKey(1000);
                 line( img, org, dst, active_color, 3, CV_AA, 0 );
+                putchar(10);
+                printf("org.x = %f , org.y = %f \n", org.x ,org.y);
+                printf("dst.x = %f , dst.y = %f \n", dst.x ,dst.y);
+                putchar(10);
+            }
+
 
             e = subdiv.getEdge(e, Subdiv2D::NEXT_AROUND_LEFT);
         }
@@ -86,6 +104,9 @@ static void locate_point( Mat& img, Subdiv2D& subdiv, Point2f fp, Scalar active_
 
     draw_subdiv_point( img, fp, active_color );
 }
+
+
+
 
 
 static void paint_voronoi( Mat& img, Subdiv2D& subdiv )
@@ -156,6 +177,51 @@ void pushFpIntoVector(vector<Point2f> &fp)
 		fp.push_back(array[i]);
 }
 
+ void trigonometric_interpolation(const vector<Point2i> &verfp , Point2i locate,Point2i &result)
+ {
+	 unsigned int d1, d2, d3 ,d;
+	 double f1, f2, f3;
+
+	 d1 = pow((locate.x - verfp[0].x),2) + pow((locate.y - verfp[0].y),2);
+	 d2 = pow((locate.x - verfp[1].x),2) + pow((locate.y - verfp[1].y),2);
+	 d3 = pow((locate.x - verfp[2].x),2) + pow((locate.y - verfp[2].y),2);
+	 d = d1 + d2 + d3;
+	 f1 = d1/d;
+	 f2 = d2/d;
+	 f3 = d3/d;
+
+	 result.x = f1*verfp[0].x + f2*verfp[1].x + f3*verfp[2].x;
+	 result.y = f1*verfp[0].y + f2*verfp[1].y + f3*verfp[2].y;
+
+	 return ;
+ }
+
+ void InterpolationMethod( const Point2i verfp,vector <position_t> & position ,Point2i & result )
+ {
+		Point2i  pos;
+
+		for(std::vector<position_t>::iterator plist = position.begin(); plist != position.end(); ++plist)
+		{
+			if( plist->ver == verfp )
+			{
+				pos = plist->pos;
+				break;
+			}
+		}
+
+
+		return ;
+ }
+
+
+
+
+
+
+
+
+
+
 int test_triangle()
 {
 
@@ -167,7 +233,7 @@ int test_triangle()
     //help();
 
     Scalar active_facet_color(0, 0, 255), delaunay_color(255,255,255);
-    Rect rect(0, 0, 600, 600);
+    Rect rect(0, 0, 1000, 1000);
 
     Subdiv2D subdiv(rect);
     Mat img(rect.size(), CV_8UC3);
@@ -179,15 +245,33 @@ int test_triangle()
 
     for(int i=0; i<fpvec.size();i++)
     {
-    	locate_point( img, subdiv, fpvec[i], active_facet_color );
-
+    	 //locate_point( img, subdiv, fpvec[i], active_facet_color );
     	 subdiv.insert(fpvec[i]);
-
     }
 
+    subdiv.insert(fpvec);
+	img = Scalar::all(0);
+	draw_subdiv( img, subdiv, delaunay_color );
+	imshow( win, img );
+	waitKey(1000);
+
+    Point2f fptmp( 120,230 );
+    locate_point( img, subdiv, fptmp, active_facet_color );
+    imshow( win, img );
+
+    waitKey(5000);
+
+    fptmp.x = 50 ;
+    fptmp.y = 550 ;
+    locate_point( img, subdiv, fptmp, active_facet_color );
+    imshow( win, img );
+	waitKey(1000);
+
+    waitKey(0);
+    return 0;
 
 /*********************************************/
-
+#if 0
     Point2f fptmp( 100,100 );
     locate_point( img, subdiv, fptmp, active_facet_color );
     imshow( win, img );
@@ -209,14 +293,13 @@ int test_triangle()
     draw_subdiv( img, subdiv, delaunay_color );
     imshow( win, img );
 
-    waitKey(0);
-    return 0;
+
+
+#endif
 
 
 
-
-
-
+#if 0
     for( int i = 0; i < 200; i++ )
     {
         Point2f fp( (float)(rand()%(rect.width-10)+5),
@@ -245,6 +328,8 @@ int test_triangle()
     waitKey(0);
 
     return 0;
+#endif
+
 }
 
 

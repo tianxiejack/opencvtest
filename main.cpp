@@ -12,6 +12,8 @@
 #include "stdio.h"
 #include "string.h"
 
+#include <algorithm>
+
 #include <iostream>
 #include <vector>
 
@@ -32,15 +34,10 @@ typedef struct{
 bool comp(const position_t &a,const position_t &b)
 {
 	unsigned int tmpa ,tmpb;
-
-	tmpa = a.ver.x;
-	tmpb = b.ver.x;
-
+	tmpa = a.pos.x;
+	tmpb = b.pos.x;
 	return tmpa<tmpb;
 }
-
-
-
 
 int main(int argc , char** argv)
 {
@@ -55,23 +52,23 @@ int main(int argc , char** argv)
 	 tmp.ver.x = 0;
 	 tmp.ver.y = 0;
 	 tmp.pos.x = 35000;
-	 tmp.pos.y = 0;
-	 verfp.push_back(tmp);
-
-	 tmp.ver.x = 1000;
-	 tmp.ver.y = 300;
-	 tmp.pos.x = 0;
-	 tmp.pos.y = 0;
+	 tmp.pos.y = 33768;
 	 verfp.push_back(tmp);
 
 	 tmp.ver.x = 2000;
-	 tmp.ver.y = 0;
+	 tmp.ver.y = 3000;
 	 tmp.pos.x = 1000;
-	 tmp.pos.y = 500;
+	 tmp.pos.y = 2000;
+	 verfp.push_back(tmp);
+
+	 tmp.ver.x = 3000;
+	 tmp.ver.y = 2000;
+	 tmp.pos.x = 2000;
+	 tmp.pos.y = 1000;
 	 verfp.push_back(tmp);
 	 /****************************************/
-	 inpoint.x = 500;
-	 inpoint.y = 0;
+	 inpoint.x = 2000;
+	 inpoint.y = 2500;
 
 	 unsigned int d1, d2, d3 ,d;
 	 double f1, f2, f3 ,dtmp;
@@ -100,7 +97,8 @@ int main(int argc , char** argv)
 	if(abs(verfp[2].pos.x - verfp[0].pos.x) > 18000)
 	{
 		verfp[0].pos.x += 36000;
-		verfp[1].pos.x += 36000;
+		if(verfp[1].pos.x < 18000)
+			verfp[1].pos.x += 36000;
 	}
 
 	for(int j=0;j<3;j++)
@@ -126,6 +124,8 @@ int main(int argc , char** argv)
 
 	 result.x = f1*verfp[0].pos.x + f2*verfp[1].pos.x + f3*verfp[2].pos.x;
 	 result.y = f1*verfp[0].pos.y + f2*verfp[1].pos.y + f3*verfp[2].pos.y;
+
+	printf("medium   result x,y = (%d , %d )\n",result.x, result.y);
 
 	result.x %= 36000;
 	if(result.y < 0)

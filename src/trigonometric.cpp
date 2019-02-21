@@ -50,7 +50,7 @@ int Trigonometric::Point2getPos(const Point2i inPoint,Point2i &result)
 	getTriangleVertex( inPoint , triVertex);
 	for(std::vector<Point2i>::iterator plist = triVertex.begin(); plist != triVertex.end(); ++plist)
 	{
-		if( plist->x <= 0 || plist->x >= rect.width || plist->y <= 0 || plist->y >= rect.height )
+		if( plist->x <= 0 || plist->x > rect.width || plist->y <= 0 || plist->y > rect.height )
 			ret = -1;
 		break;
 	}
@@ -195,17 +195,25 @@ void Trigonometric::draw_subdiv( Mat& img ,bool bdraw)
 }
 
 
-void Trigonometric::draw_point_triangle( Mat& img , Point2i fp ,bool bdraw )
+int Trigonometric::draw_point_triangle( Mat& img , Point2i fp , vector<position_t> &back,Point2i &pos, bool bdraw )
 {
     int e0=0, vertex=0;
+    int num = 0;
+    int ret = 0;
+    int flag;
+    int index;
     CvScalar color;
+    vector<Point2f> orgpoint;
+    Point2i tmppos;
+    position_t tmpBack;
+
     if(bdraw)
     	color = cvScalar(0,255,255,255);
     else
     	color = cvScalar(0,0,0,0);
 
     subdiv.locate(fp, e0, vertex);
-    int num = 0;
+
     if( e0 > 0 )
     {
         int e = e0;
@@ -214,14 +222,56 @@ void Trigonometric::draw_point_triangle( Mat& img , Point2i fp ,bool bdraw )
             Point2f org, dst;
             if( subdiv.edgeOrg(e, &org) > 0 && subdiv.edgeDst(e, &dst) > 0 )
             {
-                line( img, org, dst, color, 3, CV_AA, 0 );
+            	orgpoint.push_back(org);
+            	if( org.x <= 0.00001 || org.x >  rect.width || org.y <= 0.00001 || org.y > rect.height )
+            		ret = -1;
             }
             e = subdiv.getEdge(e, Subdiv2D::NEXT_AROUND_LEFT);
         }
         while( e != e0 );
     }
 
+    if( -1 == ret )
+    	return ret;
+
+    for( int k=0;k<3 ; k++ )
+    {
+    	index = (k+1)%3;
+        line( img, orgpoint[k], orgpoint[index], color, 3, CV_AA, 0 );
+    }
+
     draw_subdiv_point( img, fp, color );
+
+    for( int k=0;k<3 ; k++ )
+    {
+    	flag = findposInFpassembel( orgpoint[k] , tmppos );
+    	if( -1 == flag )
+    		return -1;
+    	else
+    	{
+    		tmpBack.ver = orgpoint[k];
+    		tmpBack.pos = tmppos;
+    		back.push_back(tmpBack);
+    	}
+    }
+
+    Point2getPos( fp , pos );
+
+    return 0;
+}
+
+int Trigonometric::findposInFpassembel(Point2f &fp , Point2i &pos)
+{
+	for(std::vector<position_t>::iterator plist = fpassemble.begin(); plist != fpassemble.end(); ++plist)
+	{
+		if( plist->ver.x == fp.x && plist->ver.y == fp.y )
+		{
+			pos.x = plist->pos.x;
+			pos.y = plist->pos.y;
+			return 0;
+		}
+	}
+	return -1;
 }
 
 void Trigonometric::draw_subdiv_point( Mat& img, Point2i fp, Scalar color )

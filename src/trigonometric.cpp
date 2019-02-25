@@ -178,7 +178,7 @@ void Trigonometric::draw_subdiv( Mat& img ,bool bdraw)
     vector<Point> pt(3);
     CvScalar color;
     if(bdraw)
-    	color = cvScalar(0,255,255,255);
+    	color = cvScalar(0,100,255,255);
     else
     	color = cvScalar(0,0,0,0);
 
@@ -209,7 +209,7 @@ int Trigonometric::draw_point_triangle( Mat& img , Point2i fp , vector<position_
     position_t tmpBack;
 
     if(bdraw)
-    	color = cvScalar(0,255,255,255);
+    	color = cvScalar(255,0,255,255);
     else
     	color = cvScalar(0,0,0,0);
 

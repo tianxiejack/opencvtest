@@ -39,14 +39,14 @@ int main(int argc , char** argv)
 	 position_t tmp;
 	 Point2i result;
 
-	 tmp.ver.x = 0;
-	 tmp.ver.y = 0;
+	 tmp.ver.x = 10;
+	 tmp.ver.y = 30;
 	 tmp.pos.x = 35000;
 	 tmp.pos.y = 33768;
 	 verfp.push_back(tmp);
 
 	 tmp.ver.x = 300;
-	 tmp.ver.y = 0;
+	 tmp.ver.y = 20;
 	 tmp.pos.x = 1000;
 	 tmp.pos.y = 2000;
 	 verfp.push_back(tmp);
@@ -57,22 +57,41 @@ int main(int argc , char** argv)
 	 tmp.pos.y = 1000;
 	 verfp.push_back(tmp);
 
+	 tmp.ver.x = 1000;
+	 tmp.ver.y = 900;
+	 tmp.pos.x = 9000;
+	 tmp.pos.y = 500;
+	 verfp.push_back(tmp);
+
+	 tmp.ver.x = 1000;
+	 tmp.ver.y = 100;
+	 tmp.pos.x = 9000;
+	 tmp.pos.y = 500;
+	 verfp.push_back(tmp);
+
 	 tri.insertVertexAndPosition( verfp );
+
 	 tri.draw_subdiv( test , true );
-
-	 imshow("abcde" , test);
-	 cv::waitKey(10000);
-	 return 0;
-
 
 	 /****************************************/
 
-	// inpoint.x = 150;
-	// inpoint.y = 200;
+	inpoint.x = 550;
+	inpoint.y = 300;
 
-	//int flag  =  tri.Point2getPos( inpoint,result );
+	vector<position_t> aaa;
+	Point2i getpos;
+	tri.draw_point_triangle( test , inpoint ,aaa,getpos ,true );
 
-	//printf("flag = %d        ****   result x,y = %d ,%d \n",flag ,result.x,result.y);
+	//for(int k =0 ;k = aaa.size();k++)
+		//printf("orignal   point  x,y,z =");
+	printf( "getpos-x,y = (%d , %d ) \n",getpos.x , getpos.y );
+
+	imshow("111111111111", test);
+	cv::waitKey(5000);
+
+	int flag  =  tri.Point2getPos( inpoint,result );
+
+	printf("flag = %d        ****   result x,y = %d ,%d \n",flag ,result.x,result.y);
 
 	return 0;
 }

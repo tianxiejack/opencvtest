@@ -63,9 +63,9 @@ int main(int argc , char** argv)
 	 tmp.pos.y = 500;
 	 verfp.push_back(tmp);
 
-	 tmp.ver.x = 1000;
+	 tmp.ver.x = 1900;
 	 tmp.ver.y = 100;
-	 tmp.pos.x = 9000;
+	 tmp.pos.x = 2000;
 	 tmp.pos.y = 500;
 	 verfp.push_back(tmp);
 
@@ -82,8 +82,8 @@ int main(int argc , char** argv)
 	Point2i getpos;
 	tri.draw_point_triangle( test , inpoint ,aaa,getpos ,true );
 
-	//for(int k =0 ;k = aaa.size();k++)
-		//printf("orignal   point  x,y,z =");
+	for(int k =0 ;k < aaa.size();k++)
+		printf("orignal   ver -x,y = (%d , %d )  , pos-x,y  = (%d ,%d )\n",aaa[k].ver.x,aaa[k].ver.y, aaa[k].pos.x, aaa[k].pos.y);
 	printf( "getpos-x,y = (%d , %d ) \n",getpos.x , getpos.y );
 
 	imshow("111111111111", test);

@@ -137,7 +137,7 @@ void Trigonometric::preprocessPos( vector<Point2i>& inpos )
 	return ;
 }
 
-void Trigonometric::InterpolationPos( Point2i inPoint , vector<Point2i>& triVertex ,  vector<Point2i>& triPos , Point2i result )
+void Trigonometric::InterpolationPos( Point2i inPoint , vector<Point2i>& triVertex ,  vector<Point2i>& triPos , Point2i& result )
 {
 	 unsigned int d1, d2, d3;
 	 double f1, f2, f3, dtmp;
@@ -161,7 +161,7 @@ void Trigonometric::InterpolationPos( Point2i inPoint , vector<Point2i>& triVert
 	 return ;
 }
 
-void Trigonometric::getPos( Point2i inPoint , vector<Point2i>& triVertex ,  vector<Point2i>& triPos , Point2i result )
+void Trigonometric::getPos( Point2i inPoint , vector<Point2i>& triVertex ,  vector<Point2i>& triPos , Point2i& result )
 {
 	preprocessPos( triPos );
 
@@ -242,10 +242,11 @@ int Trigonometric::draw_point_triangle( Mat& img , Point2i fp , vector<position_
     }
 
     draw_subdiv_point( img, fp, color );
-
+    back.clear();
     for( int k=0;k<3 ; k++ )
     {
     	flag = findposInFpassembel( orgpoint[k] , tmppos );
+
     	if( -1 == flag )
     		return -1;
     	else
@@ -255,9 +256,7 @@ int Trigonometric::draw_point_triangle( Mat& img , Point2i fp , vector<position_
     		back.push_back(tmpBack);
     	}
     }
-
-    Point2getPos( fp , pos );
-
+   Point2getPos( fp , pos );
     return 0;
 }
 
@@ -291,6 +290,7 @@ bool Trigonometric::readParams(std::vector<position_t>& getParam)
 	position_t tmpPos;
 
 	fpassemble.clear();
+	getParam.clear();
 	if(m_readfs.isOpened())
 	{
 		sprintf(paramName,"vectorSize");	
@@ -315,6 +315,7 @@ bool Trigonometric::readParams(std::vector<position_t>& getParam)
 			
 			fpassemble.push_back(tmpPos);
 		}
+		getParam = fpassemble;
 		m_readfs.release();
 		return true;
 	}

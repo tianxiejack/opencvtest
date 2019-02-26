@@ -69,14 +69,24 @@ int main(int argc , char** argv)
 	 tmp.pos.y = 500;
 	 verfp.push_back(tmp);
 
-	 tri.insertVertexAndPosition( verfp );
+	 //tri.insertVertexAndPosition( verfp );
+	 //tri.writeParams();
 
+	 vector<position_t> fp88;
+	 tri.readParams(fp88);
+
+	 for(int k =0 ;k < fp88.size();k++)
+	 		printf("orignal   ver -x,y = (%d , %d )  , pos-x,y  = (%d ,%d )\n",fp88[k].ver.x,fp88[k].ver.y, fp88[k].pos.x, fp88[k].pos.y);
+
+
+#if 0
 	 tri.draw_subdiv( test , true );
 
 	 /****************************************/
 
 	inpoint.x = 550;
 	inpoint.y = 300;
+
 
 	vector<position_t> aaa;
 	Point2i getpos;
@@ -92,6 +102,7 @@ int main(int argc , char** argv)
 	int flag  =  tri.Point2getPos( inpoint,result );
 
 	printf("flag = %d        ****   result x,y = %d ,%d \n",flag ,result.x,result.y);
+#endif
 
 	return 0;
 }

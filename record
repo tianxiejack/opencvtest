@@ -1,0 +1,10 @@
+input point (1150,670) 
+after handle point (1150,260) 
+[getLinearDeviation] : 				
+ V0 = ver<1080,225>,pos<13737,580> 				
+ V1 = ver<1200,225>,pos<14364,616> 				
+ V2 = ver<1080,315>,pos<13654,974> 				
+ V3 = ver<1200,315>,pos<14288,989> 
+[getLinearDeviation]:node_PTZ=<14071,749,65535>
+
+

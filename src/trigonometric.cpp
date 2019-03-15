@@ -45,31 +45,27 @@ void Trigonometric::updateSubdiv()
 int Trigonometric::Point2getPos(const Point2i inPoint,Point2i &result)
 {
 	int ret = 0;
-	vector<Point2i> triVertex;
-	vector<Point2i> triPos;
+	use2Calc.clear();
 
-	getTriangleVertex( inPoint , triVertex);
-	for(std::vector<Point2i>::iterator plist = triVertex.begin(); plist != triVertex.end(); ++plist)
+	getTriangleVertex( inPoint , use2Calc );
+	for(std::vector<position_t>::iterator plist = use2Calc.begin(); plist != use2Calc.end(); ++plist)
 	{
-		if( plist->x <= 0 || plist->x > rect.width || plist->y <= 0 || plist->y > rect.height )
+		if( plist->ver.x <= 0 || plist->ver.x > rect.width || plist->ver.y <= 0 || plist->ver.y > rect.height )
 			ret = -1;
 		break;
 	}
-
 	if( -1 == ret )
 		return ret;
 
-	vertex2pos( triVertex, triPos );
-
-	getPos( inPoint , triVertex ,  triPos , result );
-
+	vertex2pos( use2Calc );
+	getPos( inPoint , use2Calc , result );
 	return ret;
 }
 
-void Trigonometric::getTriangleVertex( Point2f fp, vector<Point2i> &result )
+void Trigonometric::getTriangleVertex( Point2f fp, vector<position_t> &inPoints )
 {
 	 int e0=0, vertex=0;
-	 Point2i tmp;
+	 position_t tmpVal;
 	 subdiv.locate(fp, e0, vertex);
 	 if( e0 > 0 )
 	 {
@@ -79,7 +75,8 @@ void Trigonometric::getTriangleVertex( Point2f fp, vector<Point2i> &result )
 			 Point2f org, dst;
 			 if( subdiv.edgeOrg(e, &org) > 0 && subdiv.edgeDst(e, &dst) > 0 )
 			 {
-				 result.push_back(org);
+			 	 tmpVal.ver = org ;
+				 inPoints.push_back(tmpVal);
 			 }
 			 e = subdiv.getEdge(e, Subdiv2D::NEXT_AROUND_LEFT);
 		 }
@@ -87,16 +84,15 @@ void Trigonometric::getTriangleVertex( Point2f fp, vector<Point2i> &result )
 	 }
 }
 
-void Trigonometric::vertex2pos(vector<Point2i> &vertex, vector<Point2i> & getPos )
+void Trigonometric::vertex2pos( vector<position_t>& inPoints )
 {
-	 getPos.clear();
-	 for(int i = 0 ; i< vertex.size(); i++)
+	 for(int i = 0 ; i< inPoints.size(); i++)
 	 {
 		for(std::vector<position_t>::iterator plist = fpassemble.begin(); plist != fpassemble.end(); ++plist)
 		{
-			if( plist->ver == vertex[i] )
+			if( plist->ver == inPoints[i].ver )
 			{
-				getPos.push_back( plist->pos );
+				inPoints[i].pos = plist->pos;
 				break;
 			}
 		}
@@ -104,55 +100,69 @@ void Trigonometric::vertex2pos(vector<Point2i> &vertex, vector<Point2i> & getPos
 	 return;
 }
 
-bool comp(const Point2i &a,const Point2i &b)
+bool comp(const position_t &a,const position_t &b)
 {
 	unsigned int tmpa ,tmpb;
-	tmpa = a.x;
-	tmpb = b.x;
+	tmpa = a.pos.x;
+	tmpb = b.pos.x;
 	return tmpa<tmpb;
 }
 
-void Trigonometric::preprocessPos( vector<Point2i>& inpos )
+void Trigonometric::preprocessPos( vector<position_t>& inPoints )
 {
 	int min = 40000 , max = 0;
-	int sizeNum = inpos.size();
+	int sizeNum = inPoints.size();
 	if(sizeNum)
-		sort(inpos.begin(),inpos.end(),comp);
+		sort(inPoints.begin(),inPoints.end(),comp);
 
-	if(abs(inpos[2].x - inpos[0].x) > 18000)
+	if(abs(inPoints[2].pos.x - inPoints[0].pos.x) > 18000)
 	{
-		inpos[0].x += 36000;
-		if(inpos[1].x < 18000)
-			inpos[1].x += 36000;
+		inPoints[0].pos.x += 36000;
+		if(inPoints[1].pos.x < 18000)
+			inPoints[1].pos.x += 36000;
 	}
 
 	for(int j=0;j<3;j++)
 	{
-		if( inpos[j].y > 32000)
+		if( inPoints[j].pos.y > 32000)
 		{
-			inpos[j].y = 32768 - inpos[j].y;
+			inPoints[j].pos.y = 32768 - inPoints[j].pos.y;
 		}
 	}
 
 	return ;
 }
 
-void Trigonometric::InterpolationPos( Point2i inPoint , vector<Point2i>& triVertex ,  vector<Point2i>& triPos , Point2i& result )
+void Trigonometric::InterpolationPos( Point2i inPoint , vector<position_t>& inPoints , Point2i& result )
 {
-	 unsigned int d1, d2, d3;
+	 double d1, d2, d3;
 	 double f1, f2, f3, dtmp;
+	 int deltax,deltay;
 
-	 d1 = pow((inPoint.x - triVertex[0].x),2) + pow((inPoint.y - triVertex[0].y),2);
-	 d2 = pow((inPoint.x - triVertex[1].x),2) + pow((inPoint.y - triVertex[1].y),2);
-	 d3 = pow((inPoint.x - triVertex[2].x),2) + pow((inPoint.y - triVertex[2].y),2);
+	 for(int abc = 0 ; abc > inPoints.size() ; abc++)
+	 {
+		 printf("[%d] : x,y --(%d , %d )  , posx,posy --(%d , %d ) \n ",  abc , inPoints[abc].ver.x,inPoints[abc].ver.y,inPoints[abc].pos.x,inPoints[abc].pos.y   );
+	 }
 
-	 dtmp = 1+ (double)d1/d2 + (double)d2/d3 ;
+	 deltax = inPoint.x - inPoints[0].ver.x ;
+	 deltay = inPoint.y - inPoints[0].ver.y ;
+	 d1 = sqrt(pow(deltax,2) + pow(deltay,2));
+
+	 deltax = inPoint.x - inPoints[1].ver.x ;
+	 deltay = inPoint.y - inPoints[1].ver.y ;
+	 d2 = sqrt(pow(deltax,2) + pow(deltay,2));
+
+	 deltax = inPoint.x - inPoints[2].ver.x ;
+	 deltay = inPoint.y - inPoints[2].ver.y ;
+	 d3 = sqrt(pow(deltax,2) + pow(deltay,2));
+
+	 dtmp = 1+ d1/d2 + d1/d3 ;
 	 f1 = 1/dtmp;
-	 f2 = (double)d1/d2*f1;
+	 f2 = d1/d2*f1;
 	 f3 = 1 - f1 - f2;
 
-	 result.x = f1*triPos[0].x + f2*triPos[1].x + f3*triPos[2].x;
-	 result.y = f1*triPos[0].y + f2*triPos[1].y + f3*triPos[2].y;
+	 result.x = f1*inPoints[0].pos.x + f2*inPoints[1].pos.x + f3*inPoints[2].pos.x;
+	 result.y = f1*inPoints[0].pos.y + f2*inPoints[1].pos.y + f3*inPoints[2].pos.y;
 
 	 result.x %= 36000;
 	 	if(result.y < 0)
@@ -161,11 +171,11 @@ void Trigonometric::InterpolationPos( Point2i inPoint , vector<Point2i>& triVert
 	 return ;
 }
 
-void Trigonometric::getPos( Point2i inPoint , vector<Point2i>& triVertex ,  vector<Point2i>& triPos , Point2i& result )
+void Trigonometric::getPos( Point2i inPoint , vector<position_t>& inPoints , Point2i& result )
 {
-	preprocessPos( triPos );
+	preprocessPos( inPoints );
 
-	InterpolationPos( inPoint, triVertex, triPos, result );
+	InterpolationPos( inPoint, inPoints, result );
 
 	return ;
 }

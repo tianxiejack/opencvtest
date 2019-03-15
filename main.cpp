@@ -74,7 +74,7 @@ int main(int argc , char** argv)
 		 if(tmpnum < verfp.size())
 			 verfp.erase(verfp.begin()+tmpnum);
 		 else
-			 verfp.erase(verfp.begin()+tmpnum%10);
+			 k--;
 	 }
 	 tri.insertVertexAndPosition( verfp );
 
@@ -101,7 +101,7 @@ int main(int argc , char** argv)
 	printf( "getpos-x,y = (%d , %d ) \n",getpos.x , getpos.y );
 
 	imshow("111111111111", test);
-	cv::waitKey(3000);
+	cv::waitKey(0);
 	putchar(10);putchar(10);putchar(10);
 	//int flag  =  tri.Point2getPos( inpoint,result );
 

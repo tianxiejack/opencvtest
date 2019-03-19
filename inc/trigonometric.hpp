@@ -21,6 +21,8 @@ using namespace cv;
 
 namespace cr_trigonometricInterpolation{
 
+const int cDistanceJudge = 20;
+
 typedef struct{
 	Point2i ver;
 	Point2i pos;
@@ -39,6 +41,12 @@ public:
 	void preprocessPos( vector<position_t>& inPoints );
 	void draw_subdiv_point( Mat& img, Point2i fp, Scalar color );
 	int findposInFpassembel(Point2f &fp , Point2i &pos);
+	int near2EdgeJudge(Point2i inPoint , vector<position_t>& inPoints);
+	float getDis2Line(Point2i pointP, Point2i pointA, Point2i pointB);
+	void edgeHandl(int inFlag , Point2i inPoint , vector<position_t>& inPoints,Point2i& result);
+	void getDisp2p(Point2i pa, Point2i pb ,double & distance);
+	void lineHandl(Point2i inPoint , position_t& pointA,position_t& pointB,Point2i& result);
+
 
 
 	void insertVertexAndPosition(vector<position_t> insert);

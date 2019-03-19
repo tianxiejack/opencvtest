@@ -129,44 +129,148 @@ void Trigonometric::preprocessPos( vector<position_t>& inPoints )
 			inPoints[j].pos.y = 32768 - inPoints[j].pos.y;
 		}
 	}
-
 	return ;
 }
+
+float Trigonometric::getDis2Line(Point2i pointP, Point2i pointA, Point2i pointB)
+{
+	/***** 点到直线的距离:P到AB的距离*****/
+	//P为线外一点，AB为线段两个端点
+
+	//求直线方程
+	int A = 0, B = 0, C = 0;
+	A = pointA.y - pointB.y;
+	B = pointB.x - pointA.x;
+	C = pointA.x*pointB.y - pointA.y*pointB.x;
+	//代入点到直线距离公式
+	float distance = 0;
+	distance = ((float)abs(A*pointP.x + B*pointP.y + C)) / ((float)sqrtf(A*A + B*B));
+	return distance;
+}
+
+/*****near2EdgeJudge  返回值说明*****/
+/*
+ * 返回 1 , 2 , 3 代表 p靠近 0-1,1-2,2-0的边缘;
+ * 返回 10,11,12代表 p 靠近点1,点2,点3
+ */
+int Trigonometric::near2EdgeJudge(Point2i inPoint , vector<position_t>& inPoints)
+{
+
+	int flag = 0;
+	int num = 0;
+	float distance[3];
+
+	for(int i=0;i<3;i++)
+		distance[i] = getDis2Line(inPoint,inPoints[i].ver,inPoints[(i+1)%3].ver);
+
+	for(int i=0;i<3;i++)
+		if(distance[i] < cDistanceJudge )
+			num++;
+
+	if( 1 == num )
+	{
+		for(int i=0 ;i<3 ;i++)
+			if(distance[i] < cDistanceJudge )
+				flag = i+1;
+	}
+	else if( 2 == num )
+	{
+		for(int i=0 ;i<3 ;i++)
+			if( distance[i] < cDistanceJudge &&  distance[i+1] < cDistanceJudge )
+				flag = i+10;
+	}
+	 return flag;
+}
+
+void Trigonometric::lineHandl(Point2i inPoint , position_t& pointA,position_t& pointB,Point2i& result)
+{
+	double fa , f,value;
+	double da,db;
+	int posx,posy;
+
+	getDisp2p( inPoint,pointA.ver ,da);
+	getDisp2p( inPoint,pointB.ver ,db);
+
+	fa = 1/( 1 + db/da );
+
+	value = (pointB.pos.x - pointA.pos.x)*fa + pointA.pos.x;
+	result.x = value;
+	value = (pointB.pos.y - pointA.pos.y)*fa + pointA.pos.y;
+	result.y = value;
+	return ;
+}
+
+void Trigonometric::edgeHandl(int inFlag,Point2i inPoint , vector<position_t>& inPoints , Point2i& result)
+{
+	double f1,f2,f3;
+
+	switch(inFlag)
+	{
+		case 1:
+			lineHandl(inPoint,inPoints[0],inPoints[1],result);
+			break;
+		case 2:
+			lineHandl(inPoint,inPoints[1],inPoints[2],result);
+			break;
+		case 3:
+			lineHandl(inPoint,inPoints[2],inPoints[0],result);
+			break;
+		case 10:
+			result = inPoints[0].pos;
+			break;
+		case 11:
+			result = inPoints[1].pos;
+			break;
+		case 12:
+			result = inPoints[2].pos;
+			break;
+		default:
+			break;
+	}
+	return ;
+}
+
+void Trigonometric::getDisp2p(Point2i pa, Point2i pb ,double& distance)
+{
+	int deltax,deltay;
+	deltax = pa.x - pb.x ;
+	deltay = pa.y - pb.y ;
+	distance = sqrt(pow(deltax,2) + pow(deltay,2));
+	return ;
+}
+
 
 void Trigonometric::InterpolationPos( Point2i inPoint , vector<position_t>& inPoints , Point2i& result )
 {
 	 double d1, d2, d3;
 	 double f1, f2, f3, dtmp;
-	 int deltax,deltay;
+
+	 int flag = 0;
 
 	 for(int abc = 0 ; abc > inPoints.size() ; abc++)
-	 {
 		 printf("[%d] : x,y --(%d , %d )  , posx,posy --(%d , %d ) \n ",  abc , inPoints[abc].ver.x,inPoints[abc].ver.y,inPoints[abc].pos.x,inPoints[abc].pos.y   );
+
+	 flag = near2EdgeJudge( inPoint , inPoints );
+
+	 if(flag)
+		 edgeHandl(flag,inPoint ,inPoints ,result);
+	 else
+	 {
+		 getDisp2p(inPoint, inPoints[0].ver ,d1);
+		 getDisp2p(inPoint, inPoints[1].ver ,d2);
+		 getDisp2p(inPoint, inPoints[2].ver ,d3);
+
+		 dtmp = 1+ d1/d2 + d1/d3 ;
+		 f1 = 1/dtmp;
+		 f2 = d1/d2*f1;
+		 f3 = 1 - f1 - f2;
+
+		 result.x = f1*inPoints[0].pos.x + f2*inPoints[1].pos.x + f3*inPoints[2].pos.x;
+		 result.y = f1*inPoints[0].pos.y + f2*inPoints[1].pos.y + f3*inPoints[2].pos.y;
 	 }
-
-	 deltax = inPoint.x - inPoints[0].ver.x ;
-	 deltay = inPoint.y - inPoints[0].ver.y ;
-	 d1 = sqrt(pow(deltax,2) + pow(deltay,2));
-
-	 deltax = inPoint.x - inPoints[1].ver.x ;
-	 deltay = inPoint.y - inPoints[1].ver.y ;
-	 d2 = sqrt(pow(deltax,2) + pow(deltay,2));
-
-	 deltax = inPoint.x - inPoints[2].ver.x ;
-	 deltay = inPoint.y - inPoints[2].ver.y ;
-	 d3 = sqrt(pow(deltax,2) + pow(deltay,2));
-
-	 dtmp = 1+ d1/d2 + d1/d3 ;
-	 f1 = 1/dtmp;
-	 f2 = d1/d2*f1;
-	 f3 = 1 - f1 - f2;
-
-	 result.x = f1*inPoints[0].pos.x + f2*inPoints[1].pos.x + f3*inPoints[2].pos.x;
-	 result.y = f1*inPoints[0].pos.y + f2*inPoints[1].pos.y + f3*inPoints[2].pos.y;
-
 	 result.x %= 36000;
-	 	if(result.y < 0)
-	 		result.y = 32768 - result.y ;
+	 if(result.y < 0)
+		result.y = 32768 - result.y ;
 
 	 return ;
 }
